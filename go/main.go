@@ -1,60 +1,46 @@
 package main
 
 import (
-	"errors"
-
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/core/crypto/primitives"
+	pb "github.com/hyperledger/fabric/protos/peer"
 	"github.com/op/go-logging"
 )
 
-var myLogger = logging.MustGetLogger("externality")
+var myLogger = logging.MustGetLogger("exchange")
 
-// ExternalityChaincode ExternalityChaincode
-type ExternalityChaincode struct {
+// ExchangeChaincode ExchangeChaincode
+type ExchangeChaincode struct {
 	stub shim.ChaincodeStubInterface
 	args []string
 }
 
-// Init is called during Deploy transaction after the container has been
-// established, allowing the chaincode to initialize its internal data
-func (c *ExternalityChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+// Init init
+func (c *ExchangeChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	myLogger.Debug("Init Chaincode...")
 
-	function, args = dealParam(function, args)
-	myLogger.Debugf("Init function:%s ,args:%s", function, args)
+	args := stub.GetStringArgs()
+	if len(args) != 0 {
+		return shim.Error("Incorrect number of arguments. Expecting 0")
+	}
 
 	c.stub = stub
 	c.args = args
 
-	if len(args) != 0 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 0")
+	err := c.initCurrency()
+	if err != nil {
+		return shim.Error(err.Error())
 	}
 
-	err := c.CreateTable()
-	if err != nil {
-		myLogger.Errorf("Init error [CreateTable]:%s", err)
-		return nil, err
-	}
-
-	err = c.InitTable()
-	if err != nil {
-		myLogger.Errorf("Init error [InitTable]:%s", err)
-		return nil, err
-	}
 	myLogger.Debug("Init Chaincode...done")
 
-	return nil, nil
+	return shim.Success(nil)
 }
 
-// Invoke is called for every Invoke transactions. The chaincode may change
-// its state variables
-func (c *ExternalityChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+// Invoke invoke
+func (c *ExchangeChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	myLogger.Debug("Invoke Chaincode...")
 
-	function, args = dealParam(function, args)
-	myLogger.Debugf("Invoke function:%s ,args:%s", function, args)
-
+	function, args := stub.GetFunctionAndParameters()
 	c.stub = stub
 	c.args = args
 
@@ -70,25 +56,7 @@ func (c *ExternalityChaincode) Invoke(stub shim.ChaincodeStubInterface, function
 		return c.lock()
 	} else if function == "exchange" {
 		return c.exchange()
-	}
-
-	myLogger.Debug("Invoke Chaincode...done")
-
-	return nil, errors.New("Received unknown function invocation")
-}
-
-// Query is called for Query transactions. The chaincode may only read
-// (but not modify) its state variables and return the result
-func (c *ExternalityChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	myLogger.Debug("Query Chaincode...")
-
-	function, args = dealParam(function, args)
-	myLogger.Debugf("Query function:%s ,args:%s", function, args)
-
-	c.stub = stub
-	c.args = args
-
-	if function == "queryCurrencyByID" {
+	} else if function == "queryCurrencyByID" {
 		return c.queryCurrencyByID()
 	} else if function == "queryAllCurrency" {
 		return c.queryAllCurrency()
@@ -104,14 +72,14 @@ func (c *ExternalityChaincode) Query(stub shim.ChaincodeStubInterface, function 
 		return c.queryMyAssignLog()
 	}
 
-	myLogger.Debug("Query Chaincode...done")
+	myLogger.Debug("Invoke Chaincode...done")
 
-	return nil, errors.New("Received unknown function query")
+	return shim.Success([]byte("Invalid invoke function name. Expecting \"invoke\" \"query\""))
 }
 
 func main() {
-	primitives.SetSecurityLevel("SHA3", 256)
-	err := shim.Start(new(ExternalityChaincode))
+	// primitives.SetSecurityLevel("SHA3", 256)
+	err := shim.Start(new(ExchangeChaincode))
 	if err != nil {
 		myLogger.Errorf("Error starting exchange chaincode: %s", err)
 	}
