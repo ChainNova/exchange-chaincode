@@ -13,15 +13,15 @@ var (
 	chaincodeName string // base chaincode name
 )
 
-// ExternalityChaincode ExternalityChaincode
-type ExternalityChaincode struct {
+// BusinessCC BusinessCC
+type BusinessCC struct {
 	stub shim.ChaincodeStubInterface
 	args []string
 }
 
 // Init is called during Deploy transaction after the container has been
 // established, allowing the chaincode to initialize its internal data
-func (c *ExternalityChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (c *BusinessCC) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	myLogger.Debug("Init Chaincode...")
 
 	function, args = dealParam(function, args)
@@ -53,7 +53,7 @@ func (c *ExternalityChaincode) Init(stub shim.ChaincodeStubInterface, function s
 
 // Invoke is called for every Invoke transactions. The chaincode may change
 // its state variables
-func (c *ExternalityChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (c *BusinessCC) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	myLogger.Debug("Invoke Chaincode...")
 
 	function, args = dealParam(function, args)
@@ -83,7 +83,7 @@ func (c *ExternalityChaincode) Invoke(stub shim.ChaincodeStubInterface, function
 
 // Query is called for Query transactions. The chaincode may only read
 // (but not modify) its state variables and return the result
-func (c *ExternalityChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (c *BusinessCC) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	myLogger.Debug("Query Chaincode...")
 
 	function, args = dealParam(function, args)
@@ -115,7 +115,7 @@ func (c *ExternalityChaincode) Query(stub shim.ChaincodeStubInterface, function 
 
 func main() {
 	primitives.SetSecurityLevel("SHA3", 256)
-	err := shim.Start(new(ExternalityChaincode))
+	err := shim.Start(new(BusinessCC))
 	if err != nil {
 		myLogger.Errorf("Error starting exchange chaincode: %s", err)
 	}

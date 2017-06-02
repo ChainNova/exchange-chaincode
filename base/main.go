@@ -18,13 +18,13 @@ var myLogger = logging.MustGetLogger("BaseCC")
 
 // Init is called during Deploy transaction after the container has been
 // established, allowing the chaincode to initialize its internal data
-func (b *BaseCC) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (c *BaseCC) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	return nil, nil
 }
 
 // Invoke is called for every Invoke transactions. The chaincode may change
 // its state variables
-func (b *BaseCC) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (c *BaseCC) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	myLogger.Debug("Invoke Chaincode...")
 
 	// function, args = dealParam(function, args)
@@ -117,7 +117,7 @@ func replaceRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error)
 
 // Query is called for Query transactions. The chaincode may only read
 // (but not modify) its state variables and return the result
-func (b *BaseCC) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (c *BaseCC) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	myLogger.Debug("Query Chaincode...")
 
 	// function, args = dealParam(function, args)

@@ -42,7 +42,7 @@ type Order struct {
 
 // initAccount init account (CNY/USD currency) when user first login
 // args: user
-func (c *ExternalityChaincode) initAccount() ([]byte, error) {
+func (c *BusinessCC) initAccount() ([]byte, error) {
 	myLogger.Debug("Init account...")
 
 	if len(c.args) != 1 {
@@ -102,7 +102,7 @@ func (c *ExternalityChaincode) initAccount() ([]byte, error) {
 
 // create create currency
 // args:currency id, currency count, currency creator
-func (c *ExternalityChaincode) create() ([]byte, error) {
+func (c *BusinessCC) create() ([]byte, error) {
 	myLogger.Debug("Create Currency...")
 
 	if len(c.args) != 3 {
@@ -146,7 +146,7 @@ func (c *ExternalityChaincode) create() ([]byte, error) {
 
 // release release currency
 // args: currency id, release count
-func (c *ExternalityChaincode) release() ([]byte, error) {
+func (c *BusinessCC) release() ([]byte, error) {
 	myLogger.Debug("Release Currency...")
 
 	if len(c.args) != 2 {
@@ -196,7 +196,7 @@ func (c *ExternalityChaincode) release() ([]byte, error) {
 
 // assign  assign currency
 // args: json{currency id, []{reciver, count}}
-func (c *ExternalityChaincode) assign() ([]byte, error) {
+func (c *BusinessCC) assign() ([]byte, error) {
 	myLogger.Debug("Assign Currency...")
 
 	if len(c.args) != 1 {
@@ -299,7 +299,7 @@ func (c *ExternalityChaincode) assign() ([]byte, error) {
 
 // lock lock or unlock user asset when commit a exchange or cancel exchange
 // args: json []{user, currency id, lock count, lock order}, islock, srcMethod
-func (c *ExternalityChaincode) lock() ([]byte, error) {
+func (c *BusinessCC) lock() ([]byte, error) {
 	myLogger.Debug("Lock Asset Balance...")
 
 	if len(c.args) != 3 {
@@ -350,7 +350,7 @@ func (c *ExternalityChaincode) lock() ([]byte, error) {
 
 // exchange exchange asset
 // args: exchange order 1, exchange order 2
-func (c *ExternalityChaincode) exchange() ([]byte, error) {
+func (c *BusinessCC) exchange() ([]byte, error) {
 	myLogger.Debug("Exchange...")
 
 	if len(c.args) != 1 {

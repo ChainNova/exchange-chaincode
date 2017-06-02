@@ -20,7 +20,7 @@ const (
 )
 
 // CreateTable InitTable
-func (c *ExternalityChaincode) CreateTable() error {
+func (c *BusinessCC) CreateTable() error {
 	// currency info
 	err := createTable(c.stub, TableCurrency, []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "ID", Type: shim.ColumnDefinition_STRING, Key: true},
@@ -109,7 +109,7 @@ func (c *ExternalityChaincode) CreateTable() error {
 }
 
 // InitTable InitTable
-func (c *ExternalityChaincode) InitTable() error {
+func (c *BusinessCC) InitTable() error {
 	// CNY
 	_, err := insertRow(c.stub, TableCurrency, shim.Row{Columns: []*shim.Column{
 		&shim.Column{Value: &shim.Column_String_{String_: CNY}},

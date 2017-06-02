@@ -40,7 +40,7 @@ var (
 )
 
 // getOwnerOneAsset
-func (c *ExternalityChaincode) getOwnerOneAsset(owner string, currency string) (shim.Row, *Asset, error) {
+func (c *BusinessCC) getOwnerOneAsset(owner string, currency string) (shim.Row, *Asset, error) {
 	var asset *Asset
 	var row shim.Row
 
@@ -70,7 +70,7 @@ func (c *ExternalityChaincode) getOwnerOneAsset(owner string, currency string) (
 }
 
 // saveReleaseLog
-func (c *ExternalityChaincode) saveReleaseLog(id string, count, now int64) error {
+func (c *BusinessCC) saveReleaseLog(id string, count, now int64) error {
 	ok, err := insertRow(c.stub, TableCurrencyReleaseLog,
 		shim.Row{
 			Columns: []*shim.Column{
@@ -87,7 +87,7 @@ func (c *ExternalityChaincode) saveReleaseLog(id string, count, now int64) error
 }
 
 // getCurrencyByID
-func (c *ExternalityChaincode) getCurrencyByID(id string) (shim.Row, *Currency, error) {
+func (c *BusinessCC) getCurrencyByID(id string) (shim.Row, *Currency, error) {
 	var currency *Currency
 	var row shim.Row
 
@@ -116,7 +116,7 @@ func (c *ExternalityChaincode) getCurrencyByID(id string) (shim.Row, *Currency, 
 }
 
 // saveAssignLog
-func (c *ExternalityChaincode) saveAssignLog(id, reciver string, count int64) error {
+func (c *BusinessCC) saveAssignLog(id, reciver string, count int64) error {
 	_, err := insertRow(c.stub, TableCurrencyAssignLog,
 		shim.Row{
 			Columns: []*shim.Column{
@@ -131,7 +131,7 @@ func (c *ExternalityChaincode) saveAssignLog(id, reciver string, count int64) er
 }
 
 // lockOrUnlockBalance lockOrUnlockBalance
-func (c *ExternalityChaincode) lockOrUnlockBalance(owner string, currency, order string, count int64, islock bool) (error, ErrType) {
+func (c *BusinessCC) lockOrUnlockBalance(owner string, currency, order string, count int64, islock bool) (error, ErrType) {
 	row, asset, err := c.getOwnerOneAsset(owner, currency)
 	if err != nil {
 		return fmt.Errorf("Failed retrieving asset [%s] of the user: [%s]", currency, err), CheckErr
@@ -187,7 +187,7 @@ func (c *ExternalityChaincode) lockOrUnlockBalance(owner string, currency, order
 }
 
 // getLockLog getLockLog
-func (c *ExternalityChaincode) getLockLog(owner string, currency, order string, islock bool) (shim.Row, error) {
+func (c *BusinessCC) getLockLog(owner string, currency, order string, islock bool) (shim.Row, error) {
 	var row shim.Row
 
 	b, err := getRow(c.stub, TableAssetLockLog, []shim.Column{
@@ -208,7 +208,7 @@ func (c *ExternalityChaincode) getLockLog(owner string, currency, order string, 
 }
 
 // getTxLogByID
-func (c *ExternalityChaincode) getTxLogByID(uuid string) (shim.Row, *Order, error) {
+func (c *BusinessCC) getTxLogByID(uuid string) (shim.Row, *Order, error) {
 	var order *Order
 	var row shim.Row
 
@@ -232,7 +232,7 @@ func (c *ExternalityChaincode) getTxLogByID(uuid string) (shim.Row, *Order, erro
 }
 
 // execTx execTx
-func (c *ExternalityChaincode) execTx(buyOrder, sellOrder *Order) (error, ErrType) {
+func (c *BusinessCC) execTx(buyOrder, sellOrder *Order) (error, ErrType) {
 	// UUID=rawuuID
 	if buyOrder.IsBuyAll && buyOrder.UUID == buyOrder.RawUUID {
 		unlock, err := c.computeBalance(buyOrder.Account, buyOrder.SrcCurrency, buyOrder.DesCurrency, buyOrder.RawUUID, buyOrder.FinalCost)
@@ -360,7 +360,7 @@ func (c *ExternalityChaincode) execTx(buyOrder, sellOrder *Order) (error, ErrTyp
 }
 
 // getTXs
-func (c *ExternalityChaincode) getTXs(owner string, srcCurrency, desCurrency, rawOrder string) ([]shim.Row, []*Order, error) {
+func (c *BusinessCC) getTXs(owner string, srcCurrency, desCurrency, rawOrder string) ([]shim.Row, []*Order, error) {
 	b, err := getRows(c.stub, TableTxLog, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: owner}},
 		shim.Column{Value: &shim.Column_String_{String_: srcCurrency}},
@@ -392,7 +392,7 @@ func (c *ExternalityChaincode) getTXs(owner string, srcCurrency, desCurrency, ra
 }
 
 // computeBalance
-func (c *ExternalityChaincode) computeBalance(owner string, srcCurrency, desCurrency, rawUUID string, currentCost int64) (int64, error) {
+func (c *BusinessCC) computeBalance(owner string, srcCurrency, desCurrency, rawUUID string, currentCost int64) (int64, error) {
 	_, txs, err := c.getTXs(owner, srcCurrency, desCurrency, rawUUID)
 	if err != nil {
 		return 0, err
@@ -415,7 +415,7 @@ func (c *ExternalityChaincode) computeBalance(owner string, srcCurrency, desCurr
 }
 
 // saveTxLog
-func (c *ExternalityChaincode) saveTxLog(buyOrder, sellOrder *Order) error {
+func (c *BusinessCC) saveTxLog(buyOrder, sellOrder *Order) error {
 	buyJson, _ := json.Marshal(buyOrder)
 	sellJson, _ := json.Marshal(sellOrder)
 
@@ -468,7 +468,7 @@ func (c *ExternalityChaincode) saveTxLog(buyOrder, sellOrder *Order) error {
 }
 
 // getOwnerAllAsset
-func (c *ExternalityChaincode) getOwnerAllAsset(owner string) ([]shim.Row, []*Asset, error) {
+func (c *BusinessCC) getOwnerAllAsset(owner string) ([]shim.Row, []*Asset, error) {
 	b, err := getRows(c.stub, TableAssets, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: owner}},
 	})
@@ -496,7 +496,7 @@ func (c *ExternalityChaincode) getOwnerAllAsset(owner string) ([]shim.Row, []*As
 }
 
 // getMyCurrency
-func (c *ExternalityChaincode) getMyCurrency(owner string) ([]*Currency, error) {
+func (c *BusinessCC) getMyCurrency(owner string) ([]*Currency, error) {
 	_, infos, err := c.getAllCurrency()
 	if err != nil {
 		return nil, err
@@ -516,7 +516,7 @@ func (c *ExternalityChaincode) getMyCurrency(owner string) ([]*Currency, error) 
 }
 
 // getAllCurrency
-func (c *ExternalityChaincode) getAllCurrency() ([]shim.Row, []*Currency, error) {
+func (c *BusinessCC) getAllCurrency() ([]shim.Row, []*Currency, error) {
 	b, err := getRows(c.stub, TableCurrency, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getRows operation failed. %s", err)
