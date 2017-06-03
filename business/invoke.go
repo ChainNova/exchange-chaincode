@@ -40,6 +40,26 @@ type Order struct {
 	FinalCost    int64  `json:"finalCost"`
 }
 
+func (c *BusinessCC) initTable() ([]byte, error) {
+	myLogger.Debug("Init table...")
+
+	err := c.CreateTable()
+	if err != nil {
+		myLogger.Errorf("Init error [CreateTable]:%s", err)
+		return nil, err
+	}
+
+	err = c.InitTable()
+	if err != nil {
+		myLogger.Errorf("Init error [InitTable]:%s", err)
+		return nil, err
+	}
+
+	myLogger.Debug("Init account...done")
+
+	return nil, nil
+}
+
 // initAccount init account (CNY/USD currency) when user first login
 // args: user
 func (c *BusinessCC) initAccount() ([]byte, error) {
