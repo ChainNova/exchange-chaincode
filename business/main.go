@@ -30,10 +30,10 @@ func (c *BusinessCC) Init(stub shim.ChaincodeStubInterface, function string, arg
 	c.stub = stub
 	c.args = args
 
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 1")
-	}
-	chaincodeName = args[0]
+	// if len(args) != 1 {
+	// 	return nil, errors.New("Incorrect number of arguments. Expecting 1")
+	// }
+	// chaincodeName = args[0]
 
 	err := c.CreateTable()
 	if err != nil {
