@@ -35,17 +35,17 @@ func (c *BusinessCC) Init(stub shim.ChaincodeStubInterface, function string, arg
 	}
 	chaincodeName = args[0]
 
-	err := c.CreateTable()
-	if err != nil {
-		myLogger.Errorf("Init error [CreateTable]:%s", err)
-		return nil, err
-	}
+	// err := c.CreateTable()
+	// if err != nil {
+	// 	myLogger.Errorf("Init error [CreateTable]:%s", err)
+	// 	return nil, err
+	// }
 
-	err = c.InitTable()
-	if err != nil {
-		myLogger.Errorf("Init error [InitTable]:%s", err)
-		return nil, err
-	}
+	// err = c.InitTable()
+	// if err != nil {
+	// 	myLogger.Errorf("Init error [InitTable]:%s", err)
+	// 	return nil, err
+	// }
 	myLogger.Debug("Init Chaincode...done")
 
 	return nil, nil
