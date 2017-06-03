@@ -43,6 +43,10 @@ type Order struct {
 func (c *BusinessCC) initTable() ([]byte, error) {
 	myLogger.Debug("Init table...")
 
+	if len(c.args) != 0 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 0")
+	}
+
 	err := c.CreateTable()
 	if err != nil {
 		myLogger.Errorf("Init error [CreateTable]:%s", err)
