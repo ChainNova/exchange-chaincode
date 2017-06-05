@@ -47,7 +47,7 @@ func (c *BusinessCC) initTable() ([]byte, error) {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 
-	chaincodeName = args[0]
+	chaincodeName = c.args[0]
 
 	err := c.CreateTable()
 	if err != nil {
