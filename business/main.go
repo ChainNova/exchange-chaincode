@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	myLogger      = logging.MustGetLogger("externality")
+	myLogger      = logging.MustGetLogger("BusinessCC")
 	chaincodeName string // base chaincode name
 )
 

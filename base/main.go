@@ -55,11 +55,13 @@ func createTable(stub shim.ChaincodeStubInterface, args []string) ([]byte, error
 	var columnDefinitions []*shim.ColumnDefinition
 	err := json.Unmarshal([]byte(args[1]), &columnDefinitions)
 	if err != nil {
+		myLogger.Errorf("createTable error1:%s", err)
 		return nil, err
 	}
 
 	err = stub.CreateTable(tableName, columnDefinitions)
 	if err != nil {
+		myLogger.Errorf("createTable error2:%s", err)
 		return nil, err
 	}
 
@@ -79,11 +81,13 @@ func insertRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) 
 	var row shim.Row
 	err := json.Unmarshal([]byte(args[1]), &row)
 	if err != nil {
+		myLogger.Errorf("insertRow error1:%s", err)
 		return nil, err
 	}
 
 	ok, err := stub.InsertRow(tableName, row)
 	if err != nil {
+		myLogger.Errorf("insertRow error2:%s", err)
 		return nil, err
 	}
 
@@ -103,11 +107,13 @@ func replaceRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error)
 	var row shim.Row
 	err := json.Unmarshal([]byte(args[1]), &row)
 	if err != nil {
+		myLogger.Errorf("replaceRow error1:%s", err)
 		return nil, err
 	}
 
 	ok, err := stub.ReplaceRow(tableName, row)
 	if err != nil {
+		myLogger.Errorf("replaceRow error2:%s", err)
 		return nil, err
 	}
 
@@ -139,11 +145,13 @@ func getRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var key []shim.Column
 	err := json.Unmarshal([]byte(args[1]), &key)
 	if err != nil {
+		myLogger.Errorf("getRow error1:%s", err)
 		return nil, err
 	}
 
 	row, err := stub.GetRow(tableName, key)
 	if err != nil {
+		myLogger.Errorf("getRow error2:%s", err)
 		return nil, err
 	}
 
@@ -156,11 +164,13 @@ func getRows(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var key []shim.Column
 	err := json.Unmarshal([]byte(args[1]), &key)
 	if err != nil {
+		myLogger.Errorf("getRows error1:%s", err)
 		return nil, err
 	}
 
 	rowChannel, err := stub.GetRows(tableName, key)
 	if err != nil {
+		myLogger.Errorf("getRows error2:%s", err)
 		return nil, err
 	}
 

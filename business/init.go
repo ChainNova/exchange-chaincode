@@ -119,7 +119,7 @@ func (c *BusinessCC) InitTable() error {
 		&shim.Column{Value: &shim.Column_Int64{Int64: time.Now().Unix()}},
 	}})
 	if err != nil {
-		myLogger.Errorf("initTable error2:%s", err)
+		myLogger.Errorf("initTable error1:%s", err)
 		return fmt.Errorf("Failed initiliazing Currency CNY: [%s]", err)
 	}
 
