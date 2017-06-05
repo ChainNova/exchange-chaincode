@@ -194,8 +194,8 @@ func (c *BusinessCC) getLockLog(owner string, currency, order string, islock boo
 }
 
 // getTxLogByID
-func (c *BusinessCC) getTxLogByID(uuid string) (shim.Row, *Order, error) {
-	var order *Order
+func (c *BusinessCC) getTxLogByID(uuid string) (shim.Row, Order, error) {
+	var order Order
 	var row shim.Row
 
 	row, err := getRow(c.stub, TableTxLog2, []shim.Column{
@@ -206,7 +206,7 @@ func (c *BusinessCC) getTxLogByID(uuid string) (shim.Row, *Order, error) {
 	}
 
 	if len(row.Columns) > 0 {
-		err = json.Unmarshal([]byte(row.Columns[1].GetString_()), order)
+		err = json.Unmarshal([]byte(row.Columns[1].GetString_()), &order)
 	}
 
 	return row, order, err
