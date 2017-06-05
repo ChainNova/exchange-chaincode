@@ -78,8 +78,8 @@ func insertRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) 
 
 	tableName := args[0]
 
-	var row shim.Row
-	err := json.Unmarshal([]byte(args[1]), &row)
+	row, err := unmarshalRow([]byte(args[1]))
+	// err := json.Unmarshal([]byte(args[1]), &row)
 	if err != nil {
 		myLogger.Errorf("insertRow error1:%s", err)
 		return nil, err
@@ -104,8 +104,8 @@ func replaceRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error)
 
 	tableName := args[0]
 
-	var row shim.Row
-	err := json.Unmarshal([]byte(args[1]), &row)
+	row, err := unmarshalRow([]byte(args[1]))
+	// err := json.Unmarshal([]byte(args[1]), &row)
 	if err != nil {
 		myLogger.Errorf("replaceRow error1:%s", err)
 		return nil, err
@@ -142,8 +142,8 @@ func (c *BaseCC) Query(stub shim.ChaincodeStubInterface, function string, args [
 func getRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	tableName := args[0]
 
-	var key []shim.Column
-	err := json.Unmarshal([]byte(args[1]), &key)
+	key, err := unmarshalColumns([]byte(args[1]))
+	// err := json.Unmarshal([]byte(args[1]), &key)
 	if err != nil {
 		myLogger.Errorf("getRow error1:%s", err)
 		return nil, err
@@ -161,8 +161,8 @@ func getRow(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 func getRows(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	tableName := args[0]
 
-	var key []shim.Column
-	err := json.Unmarshal([]byte(args[1]), &key)
+	key, err := unmarshalColumns([]byte(args[1]))
+	// err := json.Unmarshal([]byte(args[1]), &key)
 	if err != nil {
 		myLogger.Errorf("getRows error1:%s", err)
 		return nil, err
@@ -214,4 +214,73 @@ func dealParam(function string, args []string) (string, []string) {
 	}
 
 	return string(function_b), args
+}
+
+type tempColumn struct {
+	Value interface{} `json:"value"`
+}
+type tempRow struct {
+	Columns []*tempColumn `json:"columns,omitempty"`
+}
+
+func unmarshalRow(js []byte) (row shim.Row, err error) {
+	temp := tempRow{}
+
+	err = json.Unmarshal(js, &temp)
+	if err != nil {
+		myLogger.Errorf("Error Unmarshal raw json: %s", err)
+		return
+	}
+
+	for _, column := range temp.Columns {
+
+		c := convColumn(*column)
+
+		row.Columns = append(row.Columns, &c)
+	}
+	return
+}
+
+func unmarshalColumns(js []byte) (columns []shim.Column, err error) {
+	temp := []tempColumn{}
+
+	err = json.Unmarshal(js, &temp)
+	if err != nil {
+		myLogger.Errorf("Error Unmarshal columns json: %s", err)
+		return
+	}
+
+	for _, column := range temp {
+
+		c := convColumn(column)
+
+		columns = append(columns, c)
+	}
+	return
+}
+
+func convColumn(temp tempColumn) shim.Column {
+	c := shim.Column{}
+
+	if value, ok := temp.Value.(map[string]interface{}); ok {
+		for k, v := range value {
+			switch k {
+			case "String_":
+				c.Value = &shim.Column_String_{String_: v.(string)}
+			case "Int32":
+				c.Value = &shim.Column_Int32{Int32: int32(v.(float64))}
+			case "Int64":
+				c.Value = &shim.Column_Int64{Int64: int64(v.(float64))}
+			case "Uint32":
+				c.Value = &shim.Column_Uint32{Uint32: uint32(v.(float64))}
+			case "Uint64":
+				c.Value = &shim.Column_Uint64{Uint64: uint64(v.(float64))}
+			case "Bytes":
+				c.Value = &shim.Column_Bytes{Bytes: []byte(v.(string))}
+			case "Bool":
+				c.Value = &shim.Column_Bool{Bool: v.(bool)}
+			}
+		}
+	}
+	return c
 }

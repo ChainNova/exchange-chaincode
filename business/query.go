@@ -74,23 +74,16 @@ func (c *BusinessCC) queryTxLogs() ([]byte, error) {
 		return nil, errors.New("Incorrect number of arguments. Expecting 0")
 	}
 
-	b, err := getRows(c.stub, TableTxLog2, nil)
+	rows, err := getRows(c.stub, TableTxLog2, nil)
 	if err != nil {
 		myLogger.Errorf("queryTxLogs error1:%s", err)
 		return nil, fmt.Errorf("getRows operation failed. %s", err)
 	}
 
-	var rows []shim.Row
-	err = json.Unmarshal(b, &rows)
-	if err != nil {
-		myLogger.Errorf("queryTxLogs error3:%s", err)
-		return nil, fmt.Errorf("getRows unmarshal failed. %s", err)
-	}
-
 	var infos []*Order
 	for _, row := range rows {
 		var info Order
-		err = json.Unmarshal(row.Columns[1].GetBytes(), &info)
+		err = json.Unmarshal([]byte(row.Columns[1].GetString_()), &info)
 		if err == nil {
 			myLogger.Errorf("queryTxLogs error2:%s", err)
 			infos = append(infos, &info)
@@ -153,15 +146,9 @@ func (c *BusinessCC) queryMyReleaseLog() ([]byte, error) {
 
 	var logs []*ReleaseLog
 	for _, v := range currencys {
-		b, err := getRows(c.stub, TableCurrencyReleaseLog, []shim.Column{
+		rows, err := getRows(c.stub, TableCurrencyReleaseLog, []shim.Column{
 			shim.Column{Value: &shim.Column_String_{String_: v.ID}},
 		})
-		if err != nil {
-			continue
-		}
-
-		var rows []shim.Row
-		err = json.Unmarshal(b, &rows)
 		if err != nil {
 			continue
 		}
@@ -195,13 +182,7 @@ func (c *BusinessCC) queryMyAssignLog() ([]byte, error) {
 
 	logs := &AssignLog{}
 
-	b, err := getRows(c.stub, TableCurrencyAssignLog, nil)
-	if err != nil {
-		return nil, fmt.Errorf("getRows operation failed. %s", err)
-	}
-
-	var rows []shim.Row
-	err = json.Unmarshal(b, &rows)
+	rows, err := getRows(c.stub, TableCurrencyAssignLog, nil)
 	if err != nil {
 		return nil, fmt.Errorf("getRows operation failed. %s", err)
 	}

@@ -44,15 +44,10 @@ func (c *BusinessCC) getOwnerOneAsset(owner string, currency string) (shim.Row, 
 	var asset *Asset
 	var row shim.Row
 
-	b, err := getRow(c.stub, TableAssets, []shim.Column{
+	row, err := getRow(c.stub, TableAssets, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: owner}},
 		shim.Column{Value: &shim.Column_String_{String_: currency}},
 	})
-	if err != nil {
-		return row, asset, err
-	}
-
-	err = json.Unmarshal(b, &row)
 	if err != nil {
 		return row, asset, err
 	}
@@ -91,14 +86,9 @@ func (c *BusinessCC) getCurrencyByID(id string) (shim.Row, *Currency, error) {
 	var currency *Currency
 	var row shim.Row
 
-	b, err := getRow(c.stub, TableCurrency, []shim.Column{
+	row, err := getRow(c.stub, TableCurrency, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: id}},
 	})
-	if err != nil {
-		return row, currency, err
-	}
-
-	err = json.Unmarshal(b, &row)
 	if err != nil {
 		return row, currency, err
 	}
@@ -190,7 +180,7 @@ func (c *BusinessCC) lockOrUnlockBalance(owner string, currency, order string, c
 func (c *BusinessCC) getLockLog(owner string, currency, order string, islock bool) (shim.Row, error) {
 	var row shim.Row
 
-	b, err := getRow(c.stub, TableAssetLockLog, []shim.Column{
+	row, err := getRow(c.stub, TableAssetLockLog, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: owner}},
 		shim.Column{Value: &shim.Column_String_{String_: currency}},
 		shim.Column{Value: &shim.Column_String_{String_: order}},
@@ -200,10 +190,6 @@ func (c *BusinessCC) getLockLog(owner string, currency, order string, islock boo
 		return row, err
 	}
 
-	err = json.Unmarshal(b, &row)
-	if err != nil {
-		return row, err
-	}
 	return row, nil
 }
 
@@ -212,20 +198,15 @@ func (c *BusinessCC) getTxLogByID(uuid string) (shim.Row, *Order, error) {
 	var order *Order
 	var row shim.Row
 
-	b, err := getRow(c.stub, TableTxLog2, []shim.Column{
+	row, err := getRow(c.stub, TableTxLog2, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: uuid}},
 	})
 	if err != nil {
 		return row, order, err
 	}
 
-	err = json.Unmarshal(b, &row)
-	if err != nil {
-		return row, order, err
-	}
-
 	if len(row.Columns) > 0 {
-		err = json.Unmarshal(row.Columns[1].GetBytes(), order)
+		err = json.Unmarshal([]byte(row.Columns[1].GetString_()), order)
 	}
 
 	return row, order, err
@@ -361,7 +342,7 @@ func (c *BusinessCC) execTx(buyOrder, sellOrder *Order) (error, ErrType) {
 
 // getTXs
 func (c *BusinessCC) getTXs(owner string, srcCurrency, desCurrency, rawOrder string) ([]shim.Row, []*Order, error) {
-	b, err := getRows(c.stub, TableTxLog, []shim.Column{
+	rows, err := getRows(c.stub, TableTxLog, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: owner}},
 		shim.Column{Value: &shim.Column_String_{String_: srcCurrency}},
 		shim.Column{Value: &shim.Column_String_{String_: desCurrency}},
@@ -370,18 +351,13 @@ func (c *BusinessCC) getTXs(owner string, srcCurrency, desCurrency, rawOrder str
 	if err != nil {
 		return nil, nil, fmt.Errorf("getTXs operation failed. %s", err)
 	}
-	var rows []shim.Row
-	err = json.Unmarshal(b, &rows)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getTXs unmarshal failed. %s", err)
-	}
 
 	var orders []*Order
 	for _, row := range rows {
 		rows = append(rows, row)
 
 		var order Order
-		err := json.Unmarshal(row.Columns[4].GetBytes(), &order)
+		err := json.Unmarshal([]byte(row.Columns[4].GetString_()), &order)
 		if err != nil {
 			return nil, nil, fmt.Errorf("Error unmarshaling JSON: %s", err)
 		}
@@ -425,7 +401,7 @@ func (c *BusinessCC) saveTxLog(buyOrder, sellOrder *Order) error {
 			&shim.Column{Value: &shim.Column_String_{String_: buyOrder.SrcCurrency}},
 			&shim.Column{Value: &shim.Column_String_{String_: buyOrder.DesCurrency}},
 			&shim.Column{Value: &shim.Column_String_{String_: buyOrder.RawUUID}},
-			&shim.Column{Value: &shim.Column_Bytes{Bytes: buyJson}},
+			&shim.Column{Value: &shim.Column_String_{String_: string(buyJson)}},
 		},
 	})
 	if err != nil {
@@ -435,7 +411,7 @@ func (c *BusinessCC) saveTxLog(buyOrder, sellOrder *Order) error {
 	_, err = insertRow(c.stub, TableTxLog2, shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: buyOrder.UUID}},
-			&shim.Column{Value: &shim.Column_Bytes{Bytes: buyJson}},
+			&shim.Column{Value: &shim.Column_String_{String_: string(buyJson)}},
 		},
 	})
 	if err != nil {
@@ -448,7 +424,7 @@ func (c *BusinessCC) saveTxLog(buyOrder, sellOrder *Order) error {
 			&shim.Column{Value: &shim.Column_String_{String_: sellOrder.SrcCurrency}},
 			&shim.Column{Value: &shim.Column_String_{String_: sellOrder.DesCurrency}},
 			&shim.Column{Value: &shim.Column_String_{String_: sellOrder.RawUUID}},
-			&shim.Column{Value: &shim.Column_Bytes{Bytes: sellJson}},
+			&shim.Column{Value: &shim.Column_String_{String_: string(sellJson)}},
 		},
 	})
 	if err != nil {
@@ -458,7 +434,7 @@ func (c *BusinessCC) saveTxLog(buyOrder, sellOrder *Order) error {
 	_, err = insertRow(c.stub, TableTxLog2, shim.Row{
 		Columns: []*shim.Column{
 			&shim.Column{Value: &shim.Column_String_{String_: sellOrder.UUID}},
-			&shim.Column{Value: &shim.Column_Bytes{Bytes: sellJson}},
+			&shim.Column{Value: &shim.Column_String_{String_: string(sellJson)}},
 		},
 	})
 	if err != nil {
@@ -469,17 +445,11 @@ func (c *BusinessCC) saveTxLog(buyOrder, sellOrder *Order) error {
 
 // getOwnerAllAsset
 func (c *BusinessCC) getOwnerAllAsset(owner string) ([]shim.Row, []*Asset, error) {
-	b, err := getRows(c.stub, TableAssets, []shim.Column{
+	rows, err := getRows(c.stub, TableAssets, []shim.Column{
 		shim.Column{Value: &shim.Column_String_{String_: owner}},
 	})
 	if err != nil {
 		return nil, nil, fmt.Errorf("getOwnerAllAsset operation failed. %s", err)
-	}
-
-	var rows []shim.Row
-	err = json.Unmarshal(b, &rows)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getOwnerAllAsset unmarshal failed. %s", err)
 	}
 
 	var assets []*Asset
@@ -517,14 +487,9 @@ func (c *BusinessCC) getMyCurrency(owner string) ([]*Currency, error) {
 
 // getAllCurrency
 func (c *BusinessCC) getAllCurrency() ([]shim.Row, []*Currency, error) {
-	b, err := getRows(c.stub, TableCurrency, nil)
+	rows, err := getRows(c.stub, TableCurrency, nil)
 	if err != nil {
 		return nil, nil, fmt.Errorf("getRows operation failed. %s", err)
-	}
-	var rows []shim.Row
-	err = json.Unmarshal(b, &rows)
-	if err != nil {
-		return nil, nil, fmt.Errorf("getRows unmarshal failed. %s", err)
 	}
 
 	var infos []*Currency

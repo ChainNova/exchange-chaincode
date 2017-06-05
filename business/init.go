@@ -89,7 +89,7 @@ func (c *BusinessCC) CreateTable() error {
 		&shim.ColumnDefinition{Name: "SrcCurrency", Type: shim.ColumnDefinition_STRING, Key: true},
 		&shim.ColumnDefinition{Name: "DesCurrency", Type: shim.ColumnDefinition_STRING, Key: true},
 		&shim.ColumnDefinition{Name: "RawOrder", Type: shim.ColumnDefinition_STRING, Key: true},
-		&shim.ColumnDefinition{Name: "Detail", Type: shim.ColumnDefinition_BYTES, Key: true},
+		&shim.ColumnDefinition{Name: "Detail", Type: shim.ColumnDefinition_STRING, Key: true},
 	})
 	if err != nil {
 		myLogger.Errorf("createTable error6:%s", err)
@@ -99,7 +99,7 @@ func (c *BusinessCC) CreateTable() error {
 	// tx log
 	err = createTable(c.stub, TableTxLog2, []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "UUID", Type: shim.ColumnDefinition_STRING, Key: true},
-		&shim.ColumnDefinition{Name: "Detail", Type: shim.ColumnDefinition_BYTES, Key: false},
+		&shim.ColumnDefinition{Name: "Detail", Type: shim.ColumnDefinition_STRING, Key: false},
 	})
 	if err != nil {
 		myLogger.Errorf("createTable error7:%s", err)
