@@ -53,7 +53,7 @@ func getRow(stub shim.ChaincodeStubInterface, tableName string, key []shim.Colum
 		return shim.Row{}, err
 	}
 
-	b, err := stub.InvokeChaincode(chaincodeName, util.ToChaincodeArgs("GetRow", tableName, string(js)))
+	b, err := stub.QueryChaincode(chaincodeName, util.ToChaincodeArgs("GetRow", tableName, string(js)))
 	if err != nil {
 		return shim.Row{}, err
 	}
@@ -67,7 +67,7 @@ func getRows(stub shim.ChaincodeStubInterface, tableName string, key []shim.Colu
 		return nil, err
 	}
 
-	b, err := stub.InvokeChaincode(chaincodeName, util.ToChaincodeArgs("GetRows", tableName, string(js)))
+	b, err := stub.QueryChaincode(chaincodeName, util.ToChaincodeArgs("GetRows", tableName, string(js)))
 	if err != nil {
 		return nil, err
 	}
