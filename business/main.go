@@ -30,10 +30,9 @@ func (c *BusinessCC) Init(stub shim.ChaincodeStubInterface, function string, arg
 	c.stub = stub
 	c.args = args
 
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 1")
+	if len(args) != 0 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 0")
 	}
-	chaincodeName = args[0]
 
 	myLogger.Debug("Init Chaincode...done")
 
