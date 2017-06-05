@@ -24,15 +24,15 @@ type BusinessCC struct {
 func (c *BusinessCC) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	myLogger.Debug("Init Chaincode...")
 
-	function, args = dealParam(function, args)
-	myLogger.Debugf("Init function:%s ,args:%s", function, args)
+	// function, args = dealParam(function, args)
+	// myLogger.Debugf("Init function:%s ,args:%s", function, args)
 
-	c.stub = stub
-	c.args = args
+	// c.stub = stub
+	// c.args = args
 
-	if len(args) != 0 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 0")
-	}
+	// if len(args) != 0 {
+	// 	return nil, errors.New("Incorrect number of arguments. Expecting 0")
+	// }
 
 	myLogger.Debug("Init Chaincode...done")
 
